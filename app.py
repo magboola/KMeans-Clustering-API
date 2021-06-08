@@ -34,13 +34,19 @@ def __cluster_helper(json_object):
     store = {}
 
     for i in range(len(centers)):
-        group = label_groups.get_group(i)["ik_number"].to_numpy()    
-        group = np.append(group, centers[i])
-        new_group = group.tolist()
-        store[i] = new_group
+        try:
+            group = label_groups.get_group(i)["ik_number"].to_numpy()    
+            group = np.append(group, centers[i])
+            new_group = group.tolist()
+            store[i] = new_group
+        except:
+            print("Something went wrong")
+            return
 
     return store
     
+
+@app.route('/')
 
 
 @app.route('/clusters_info', methods=["GET"])
@@ -51,7 +57,6 @@ def get_clusters():
 
     res_json = json.dumps(res)
     return res_json
-
 
 # Run Server
 if __name__ == "__main__":
