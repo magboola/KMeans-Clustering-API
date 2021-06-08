@@ -18,8 +18,13 @@ def __cluster_helper(json_object):
 
     df = pd.read_json(json_object)
     df.dropna(axis=0,how='any',subset=['latitude','longitude'], inplace=True)
-    # Variable with the Longitude and Latitude
 
+    faulty = df.loc[df['latitude'] == "TEST"]
+    faulty = list(faulty["ik_number"])
+
+
+    # Variable with the Longitude and Latitude
+    df = df[df['latitude'] != "TEST"]
 
     rand = lambda: random.randint(0,255)
     colordict = {i: '#%02X%02X%02X' % (rand(),rand(),rand()) for i in range(CLUSTER_NUMBERS)}
@@ -43,10 +48,7 @@ def __cluster_helper(json_object):
             print("Something went wrong")
             return
 
-    return store
-    
-
-@app.route('/')
+    return {"clusters": store, "faulty": faulty}
 
 
 @app.route('/clusters_info', methods=["GET"])
@@ -55,8 +57,8 @@ def get_clusters():
 
     res = __cluster_helper(json_object)
 
-    res_json = json.dumps(res)
-    return res_json
+    res = json.dumps(res)
+    return res
 
 # Run Server
 if __name__ == "__main__":
