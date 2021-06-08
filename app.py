@@ -19,15 +19,17 @@ def __cluster_helper(json_object):
     df = pd.read_json(json_object)
     df.dropna(axis=0,how='any',subset=['latitude','longitude'], inplace=True)
 
+    # Get all faulty columns
     faulty = df.loc[df['latitude'] == "TEST"]
     faulty = list(faulty["ik_number"])
 
 
-    # Variable with the Longitude and Latitude
+    # Drop faulty columns from the dataframe
     df = df[df['latitude'] != "TEST"]
 
     rand = lambda: random.randint(0,255)
     colordict = {i: '#%02X%02X%02X' % (rand(),rand(),rand()) for i in range(CLUSTER_NUMBERS)}
+
 
     kmeans = KMeans(n_clusters = CLUSTER_NUMBERS, init ='k-means++')
     kmeans.fit(df[df.columns[1:3]]) # Compute k-means clustering.
@@ -39,26 +41,26 @@ def __cluster_helper(json_object):
     store = {}
 
     for i in range(len(centers)):
-        try:
-            group = label_groups.get_group(i)["ik_number"].to_numpy()    
-            group = np.append(group, centers[i])
-            new_group = group.tolist()
-            store[i] = new_group
-        except:
-            print("Something went wrong")
-            return
+    
+        group = label_groups.get_group(i)["ik_number"].to_numpy()    
+        group = np.append(group, centers[i])
+        new_group = group.tolist()
+        store[i] = new_group
 
     return {"clusters": store, "faulty": faulty}
 
 
 @app.route('/clusters_info', methods=["GET"])
 def get_clusters():
-    json_object = json.dumps(request.get_json())
+    try:
+        json_object = json.dumps(request.get_json())
 
-    res = __cluster_helper(json_object)
+        res = __cluster_helper(json_object)
 
-    res = json.dumps(res)
-    return res
+        res = json.dumps(res)
+        return res
+    except:
+        print("Something went wrong!")
 
 # Run Server
 if __name__ == "__main__":
