@@ -12,7 +12,7 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 #Number of Clusters to be formed
-CLUSTER_NUMBERS = 200
+CLUSTER_NUMBERS = 20
 
 def __cluster_helper(json_object):
 
@@ -50,17 +50,14 @@ def __cluster_helper(json_object):
     return {"clusters": store, "faulty": faulty}
 
 
-@app.route('/clusters_info', methods=["GET"])
+@app.route('/clusters_info', methods=["POST"])
 def get_clusters():
-    try:
-        json_object = json.dumps(request.get_json())
+    json_object = request.form.get('key')
 
-        res = __cluster_helper(json_object)
+    res = __cluster_helper(json_object)
+    
+    return res
 
-        res = json.dumps(res)
-        return res
-    except:
-        print("Something went wrong!")
 
 # Run Server
 if __name__ == "__main__":
