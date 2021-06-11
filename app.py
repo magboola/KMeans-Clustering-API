@@ -12,7 +12,7 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 #Number of Clusters to be formed
-CLUSTER_NUMBERS = 20
+CLUSTER_NUMBERS = 200
 
 def __cluster_helper(json_object):
 
@@ -47,7 +47,7 @@ def __cluster_helper(json_object):
         new_group = group.tolist()
         store[i] = new_group
 
-    return {"clusters": store, "faulty": faulty}
+    return [store, faulty]
 
 
 @app.route('/clusters_info', methods=["POST"])
@@ -55,8 +55,8 @@ def get_clusters():
     json_object = request.form.get('key')
 
     res = __cluster_helper(json_object)
-    
-    return res
+
+    return jsonify(res)
 
 
 # Run Server
